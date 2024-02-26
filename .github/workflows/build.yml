@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install cc65
+        run: sudo apt install -y cc65
+
       - name: Test
         working-directory: ./js
         run: |
@@ -44,15 +47,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
+      - name: Checkout xzintbit
+        uses: actions/checkout@v4
         with:
           name: matushorvath/xzintbit
 
-      - uses: actions/checkout@v4
+      - name: Checkout Microsoft Basic
+        uses: actions/checkout@v4
         with:
           name: matushorvath/msbasic
 
-      - uses: actions/checkout@v4
+      - name: Checkout 6502 functional tests
+        uses: actions/checkout@v4
         with:
           name: Klaus2m5/6502_65C02_functional_tests
 
