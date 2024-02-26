@@ -59,6 +59,13 @@ jobs:
           repository: matushorvath/msbasic
           path: ic/msbasic
 
+      - name: Install cc65
+        run: sudo apt install -y cc65
+
+      - name: Build Microsoft Basic
+        working-directory: ic/msbasic
+        run: ./make.sh
+
       - name: Checkout 6502 functional tests
         uses: actions/checkout@v4
         with:
