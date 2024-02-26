@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+env:
+  CC: gcc
+
 jobs:
   build-javascript:
     name: JavaScript OS=${{ matrix.os }}
