@@ -26,7 +26,7 @@ jobs:
       - name: Install cc65
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            apt install -y cc65
+            sudo apt install -y cc65
           elif [ "$RUNNER_OS" == "Windows" ]; then
             choco install cc65-compiler
           elif [ "$RUNNER_OS" == "macOS" ]; then
@@ -74,7 +74,7 @@ jobs:
       - name: Install cc65
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            apt install -y cc65
+            sudo apt install -y cc65
           elif [ "$RUNNER_OS" == "Windows" ]; then
             choco install cc65-compiler
           elif [ "$RUNNER_OS" == "macOS" ]; then
