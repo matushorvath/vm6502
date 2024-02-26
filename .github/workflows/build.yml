@@ -1,0 +1,65 @@
+name: Build and Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-javascript:
+    name: JavaScript OS=${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Test
+        working-directory: ./js
+        run: |
+          npm install
+          npm test
+
+  build-intcode:
+    name: Intcode OS=${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      ICDIR: xzintbit
+      MSBASICDIR: msbasic
+      FUNCTESTDIR: 6502_65C02_functional_tests
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          name: matushorvath/xzintbit
+
+      - uses: actions/checkout@v4
+        with:
+          name: matushorvath/msbasic
+
+      - uses: actions/checkout@v4
+        with:
+          name: Klaus2m5/6502_65C02_functional_tests
+
+      - name: Build
+        working-directory: ./ic
+        run: make build
+
+      - name: Test
+        working-directory: ./ic
+        run: make test
