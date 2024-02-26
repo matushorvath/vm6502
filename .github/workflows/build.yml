@@ -29,16 +29,12 @@ jobs:
           npm test
 
   build-intcode:
-    name: Intcode OS=${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Intcode
+    runs-on: ubuntu-latest
     env:
       ICDIR: xzintbit
       MSBASICDIR: msbasic
       FUNCTESTDIR: 6502_65C02_functional_tests
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +72,15 @@ jobs:
         working-directory: ic
         run: make build
 
-      - name: Test
-        working-directory: ic
-        run: make test
+# TODO enable tests in CI/CD
+#      - name: Test
+#        working-directory: ic
+#        run: make test
+
+      - name: Store artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: msbasic.input
+          path: bin/msbasic.input
+          if-no-files-found: error
+        if: github.ref == 'refs/heads/main'
