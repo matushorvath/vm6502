@@ -32,9 +32,9 @@ jobs:
     name: Intcode OS=${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      ICDIR: xzintbit
-      MSBASICDIR: msbasic
-      FUNCTESTDIR: 6502_65C02_functional_tests
+      ICDIR: ${{env.GITHUB_WORKSPACE}}/xzintbit
+      MSBASICDIR: ${{env.GITHUB_WORKSPACE}}/msbasic
+      FUNCTESTDIR: ${{env.GITHUB_WORKSPACE}}/6502_65C02_functional_tests
 
     strategy:
       matrix:
