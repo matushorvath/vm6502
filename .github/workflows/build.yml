@@ -48,6 +48,10 @@ jobs:
         with:
           name: matushorvath/xzintbit
 
+      - name: Build xzintbit
+        working-directory: ./xzintbit
+        run: make build-vm
+
       - name: Checkout Microsoft Basic
         uses: actions/checkout@v4
         with:
