@@ -46,25 +46,27 @@ jobs:
       - name: Checkout xzintbit
         uses: actions/checkout@v4
         with:
-          name: matushorvath/xzintbit
+          repository: matushorvath/xzintbit
+
+      - run: ls -l
 
       - name: Build xzintbit
         working-directory: ./xzintbit
-        run: make build-vm
+        run: ls -l ; make build-vm
 
       - name: Checkout Microsoft Basic
         uses: actions/checkout@v4
         with:
-          name: matushorvath/msbasic
+          repository: matushorvath/msbasic
 
       - name: Checkout 6502 functional tests
         uses: actions/checkout@v4
         with:
-          name: Klaus2m5/6502_65C02_functional_tests
+          repository: Klaus2m5/6502_65C02_functional_tests
 
       - name: Build
         working-directory: ./ic
-        run: make build
+        run: ls -l ; make build
 
       - name: Test
         working-directory: ./ic
