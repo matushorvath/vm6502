@@ -8,12 +8,8 @@ on:
 
 jobs:
   build-javascript:
-    name: JavaScript OS=${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+    name: JavaScript
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
