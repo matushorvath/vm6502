@@ -35,7 +35,7 @@ endef
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/vm6502.input $(BINDIR)/msbasic.input $(BINDIR)/func_test.input
+build: build-prep $(BINDIR)/vm6502.input $(BINDIR)/msbasic.input $(BINDIR)/decimal_test.input $(BINDIR)/func_test.input
 
 .PHONY: build-prep
 build-prep:
@@ -43,15 +43,19 @@ build-prep:
 
 # Test
 .PHONY: test
-test: build msbasic_test func_test
+test: build msbasic_test func_test decimal_test
+
+.PHONY: msbasic_test
+msbasic_test: $(BINDIR)/msbasic.input
+	< $(SRCDIR)/msbasic_test.in $(ICVM) $(BINDIR)/msbasic.input 2> /dev/null | diff -r - $(SRCDIR)/msbasic_test.out
 
 .PHONY: func_test
 func_test: $(BINDIR)/func_test.input
 	$(ICVM) $(BINDIR)/func_test.input < /dev/null
 
-.PHONY: msbasic_test
-msbasic_test: $(BINDIR)/msbasic.input
-	< $(SRCDIR)/msbasic_test.in $(ICVM) $(BINDIR)/msbasic.input 2> /dev/null | diff -r - $(SRCDIR)/msbasic_test.out
+.PHONY: decimal_test
+decimal_test: $(BINDIR)/decimal_test.input
+	$(ICVM) $(BINDIR)/decimal_test.input < /dev/null
 
 # The order of the object files matters: First include all the code in any order, then binary.o,
 # then the (optional) 6502 image header and data.
@@ -91,6 +95,15 @@ $(BINDIR)/func_test.input: $(addprefix $(OBJDIR)/, $(FUNC_TEST_OBJS)) $(LIBXIB)
 	$(run-ld)
 
 $(OBJDIR)/func_test_binary.o: $(FUNCTESTDIR)/bin_files/6502_functional_test.bin $(BINDIR)/bin2obj.input
+	$(run-bin2obj)
+
+DECIMAL_TEST_OBJS = $(BASE_OBJS) decimal_test_callback.o binary.o decimal_test_header.o decimal_test_binary.o
+
+$(BINDIR)/decimal_test.input: $(addprefix $(OBJDIR)/, $(DECIMAL_TEST_OBJS)) $(LIBXIB)
+	$(run-ld)
+
+# The decimal test binary is not in the repository, it needs to be built first
+$(OBJDIR)/decimal_test_binary.o: $(FUNCTESTDIR)/ca65/6502_decimal_test.bin $(BINDIR)/bin2obj.input
 	$(run-bin2obj)
 
 GEN_BITS_OBJS = gen_bits.o

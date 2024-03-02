@@ -48,6 +48,8 @@ jobs:
           repository: Klaus2m5/6502_65C02_functional_tests
           path: 6502_65C02_functional_tests
 
+        # TODO Build the decimal test
+
       - name: Build
         run: make build
 
