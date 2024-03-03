@@ -12,26 +12,24 @@
 # We use this to detect a failed/successful test run and halt the VM, since the decimal test
 # itself never finishes, it just enters a tight endless loop.
 
-# Test finished address
-# Can be found using bin_files/6502_functional_test.lst, search for /end_of_test$/
-.SYMBOL FINISHED_ADDRESS                1099        # 0x044B
+# Previous value of the pc register
+decimal_test_prev_pc:
+    db  -1
 
 # Test error status address; 0 if test passed, 1 if test failed
 # Can be found using bin_files/6502_functional_test.lst, search for /ERROR: +\.res +1,0/
 .SYMBOL ERROR                           11          # 0x000B
 
-# TODO automatically determine FINISHED_ADDRESS and ERROR from 6502_decimal_test.lst
-# TODO these will potentially change with every execution
-# TODO awk -e '/ERROR: +\.res +1,0/ { print(strtonum("0x" $1)) }' < ../6502_65C02_functional_tests/ca65/6502_decimal_test.lst
-# TODO awk -e '/end_of_test$/ { print(strtonum("0x" $1)) }' < ../6502_65C02_functional_tests/ca65/6502_decimal_test.lst
-
 decimal_test_callback:
 .FRAME tmp                              # returns tmp
     arb -1
 
-    # Have we reached the successful end of the test?
-    eq  [reg_pc], FINISHED_ADDRESS, [rb + tmp]
+    # Are we in a tight loop?
+    eq  [reg_pc], [decimal_test_prev_pc], [rb + tmp]
     jnz [rb + tmp], decimal_test_callback_finished
+
+    # Save previous pc value
+    add [reg_pc], 0, [decimal_test_prev_pc]
 
     # Return 1 to keep running
     add 1, 0, [rb + tmp]
