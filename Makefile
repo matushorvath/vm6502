@@ -20,6 +20,7 @@ endif
 
 ICVM ?= $(abspath $(ICDIR)/vms)/$(ICVM_TYPE)/ic
 ICAS ?= $(abspath $(ICDIR)/bin/as.input)
+ICBIN2OBJ ?= $(abspath $(ICDIR)/bin/bin2obj.input)
 ICLD ?= $(abspath $(ICDIR)/bin/ld.input)
 ICLDMAP ?= $(abspath $(ICDIR)/bin/ldmap.input)
 LIBXIB ?= $(abspath $(ICDIR)/bin/libxib.a)
@@ -42,7 +43,7 @@ define run-ld
 endef
 
 define run-bin2obj
-	ls -n $< | awk '{ printf "%s ", $$5 }' | cat - $< | $(ICVM) $(BINDIR)/bin2obj.input > $@ || ( cat $@ ; false )
+	ls -n $< | awk '{ printf "%s ", $$5 }' | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
 endef
 
 # Build
@@ -94,7 +95,7 @@ MSBASIC_OBJS = $(BASE_OBJS) binary.o msbasic_header.o msbasic_binary.o
 $(BINDIR)/msbasic.input: $(addprefix $(OBJDIR)/, $(MSBASIC_OBJS)) $(LIBXIB)
 	$(run-ld)
 
-$(OBJDIR)/msbasic_binary.o: $(MSBASICDIR)/tmp/vm6502.bin $(BINDIR)/bin2obj.input
+$(OBJDIR)/msbasic_binary.o: $(MSBASICDIR)/tmp/vm6502.bin
 	$(run-bin2obj)
 
 FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o binary.o func_test_header.o func_test_binary.o
@@ -102,17 +103,12 @@ FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o binary.o func_test_header.o f
 $(BINDIR)/func_test.input: $(addprefix $(OBJDIR)/, $(FUNC_TEST_OBJS)) $(LIBXIB)
 	$(run-ld)
 
-$(OBJDIR)/func_test_binary.o: $(FUNCTESTDIR)/bin_files/6502_functional_test.bin $(BINDIR)/bin2obj.input
+$(OBJDIR)/func_test_binary.o: $(FUNCTESTDIR)/bin_files/6502_functional_test.bin
 	$(run-bin2obj)
 
 GEN_BITS_OBJS = gen_bits.o
 
 $(BINDIR)/gen_bits.input: $(addprefix $(OBJDIR)/, $(GEN_BITS_OBJS)) $(LIBXIB)
-	$(run-ld)
-
-BIN2OBJ_OBJS = bin2obj.o
-
-$(BINDIR)/bin2obj.input: $(addprefix $(OBJDIR)/, $(BIN2OBJ_OBJS)) $(LIBXIB)
 	$(run-ld)
 
 # Clean
