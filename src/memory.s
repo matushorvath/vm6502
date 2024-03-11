@@ -152,9 +152,7 @@ write_done:
 
 ##########
 push:
-.FRAME value; tmp
-    arb -1
-
+.FRAME value;
     add 256, [reg_sp], [rb - 1]         # stack starts at 0x100 = 256
     add [rb + value], 0, [rb - 2]
     arb -2
@@ -165,7 +163,6 @@ push:
     call mod_8bit
     add [rb - 3], 0, [reg_sp]
 
-    arb 1
     ret 1
 .ENDFRAME
 
