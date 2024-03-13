@@ -69,12 +69,12 @@ execute_brk:
     add 1, 0, [flag_interrupt]
 
     # Read the IRQ vector from 0xfffe and 0xffff
-    add 65535, 0, [rb - 1]
+    add 0xffff, 0, [rb - 1]
     arb -1
     call read
-    mul [rb - 3], 256, [reg_pc]           # read(0xffff) * 0x100 -> [reg_pc]
+    mul [rb - 3], 0x100, [reg_pc]           # read(0xffff) * 0x100 -> [reg_pc]
 
-    add 65534, 0, [rb - 1]
+    add 0xfffe, 0, [rb - 1]
     arb -1
     call read
     add [rb - 3], [reg_pc], [reg_pc]      # read(0xfffe) + read(0xffff) * 0x100 -> [reg_pc]
@@ -142,7 +142,7 @@ execute_rti:
     add [rb - 2], 0, [reg_pc]
 
     call pull
-    mul [rb - 2], 256, [rb - 2]
+    mul [rb - 2], 0x100, [rb - 2]
     add [reg_pc], [rb - 2], [reg_pc]
 
     ret 0
@@ -156,7 +156,7 @@ execute_rts:
     add [rb - 2], 0, [reg_pc]
 
     call pull
-    mul [rb - 2], 256, [rb - 2]
+    mul [rb - 2], 0x100, [rb - 2]
     add [reg_pc], [rb - 2], [reg_pc]
 
     # Increment reg_pc by 1 with wraparound

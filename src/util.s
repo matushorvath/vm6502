@@ -19,7 +19,7 @@ incpc:
 
     add [reg_pc], 1, [reg_pc]
 
-    eq  [reg_pc], 65536, [rb + tmp]
+    eq  [reg_pc], 0x10000, [rb + tmp]
     jz  [rb + tmp], incpc_done
 
     add 0, 0, [reg_pc]
@@ -60,24 +60,24 @@ mod:
 
     # Handle negative value
     lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], mod_8bit_negative_loop
+    jnz [rb + tmp], mod_negative_loop
 
-mod_8bit_positive_loop:
+mod_positive_loop:
     lt  [rb + value], [rb + divisor], [rb + tmp]
-    jnz [rb + tmp], mod_8bit_done
+    jnz [rb + tmp], mod_done
 
     mul [rb + divisor], -1, [rb + tmp]
     add [rb + value], [rb + tmp], [rb + value]
-    jz  0, mod_8bit_positive_loop
+    jz  0, mod_positive_loop
 
-mod_8bit_negative_loop:
+mod_negative_loop:
     lt  [rb + value], 0, [rb + tmp]
-    jz  [rb + tmp], mod_8bit_done
+    jz  [rb + tmp], mod_done
 
     add [rb + value], [rb + divisor], [rb + value]
-    jz  0, mod_8bit_negative_loop
+    jz  0, mod_negative_loop
 
-mod_8bit_done:
+mod_done:
     add [rb + value], 0, [rb + tmp]
 
     arb 1
@@ -156,7 +156,8 @@ split_hi_lo_zero:
     ret 2
 
 split_hi_lo_pow:
-    db  1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768
+    db  0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080
+    db  0x0100, 0x0200, 0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000
 .ENDFRAME
 
 .EOF

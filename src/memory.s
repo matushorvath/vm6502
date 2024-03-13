@@ -18,7 +18,7 @@
 .IMPORT mod
 
 # Where IO is mapped in 6502 memory
-.SYMBOL IOPORT                          65520       # 0xfff0;
+.SYMBOL IOPORT                          0xfff0
 
 ##########
 init_memory:
@@ -35,7 +35,7 @@ init_memory:
 
     # Validate the image will fit to 16-bits when loaded there
     add [binary + 1], [binary + 4], [rb + tgt]
-    lt  65536, [rb + tgt], [rb + tmp]
+    lt  0x10000, [rb + tgt], [rb + tmp]
     jz  [rb + tmp], init_memory_load_address_ok
 
     add image_too_big_error, 0, [rb - 1]
@@ -154,7 +154,7 @@ write_done:
 ##########
 push:
 .FRAME value;
-    add 256, [reg_sp], [rb - 1]         # stack starts at 0x100 = 256
+    add 0x100, [reg_sp], [rb - 1]       # stack starts at 0x100
     add [rb + value], 0, [rb - 2]
     arb -2
     call write
@@ -179,7 +179,7 @@ pull:
     call mod
     add [rb - 4], 0, [reg_sp]
 
-    add 256, [reg_sp], [rb - 1]         # stack starts at 0x100 = 256
+    add 0x100, [reg_sp], [rb - 1]         # stack starts at 0x100
     arb -1
     call read
     add [rb - 3], 0, [rb + tmp]

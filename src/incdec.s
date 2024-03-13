@@ -41,7 +41,7 @@ execute_inc_dec_generic:
     arb -2
     call mod
 
-    lt  127, [rb - 4], [flag_negative]
+    lt  0x7f, [rb - 4], [flag_negative]
     eq  [rb - 4], 0, [flag_zero]
 
     add [rb + addr], 0, [rb - 1]
@@ -62,7 +62,7 @@ execute_inx:
     call mod
     add [rb - 4], 0, [reg_x]
 
-    lt  127, [reg_x], [flag_negative]
+    lt  0x7f, [reg_x], [flag_negative]
     eq  [reg_x], 0, [flag_zero]
 
     ret 0
@@ -77,7 +77,7 @@ execute_iny:
     call mod
     add [rb - 4], 0, [reg_y]
 
-    lt  127, [reg_y], [flag_negative]
+    lt  0x7f, [reg_y], [flag_negative]
     eq  [reg_y], 0, [flag_zero]
 
     ret 0
@@ -92,7 +92,7 @@ execute_dex:
     call mod
     add [rb - 4], 0, [reg_x]
 
-    lt  127, [reg_x], [flag_negative]
+    lt  0x7f, [reg_x], [flag_negative]
     eq  [reg_x], 0, [flag_zero]
 
     ret 0
@@ -107,7 +107,7 @@ execute_dey:
     call mod
     add [rb - 4], 0, [reg_y]
 
-    lt  127, [reg_y], [flag_negative]
+    lt  0x7f, [reg_y], [flag_negative]
     eq  [reg_y], 0, [flag_zero]
 
     ret 0
