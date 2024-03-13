@@ -20,22 +20,22 @@ binary:
 # After this we expect:
 #
 # binary_start_address:
-#    db  12345        # start at address 12345; or
+#    db  0x12345      # start at address 0x12345; or
 #    db  -1           # start at the reset vector (default 6502 behavior)
 #
 # binary_load_address:
-#    db  49152        # load address of the binary image in 6502 memory
+#    db  0xc000       # load address of the binary image in 6502 memory
 #
 # tracing:
 #    db  1            # 0 - disable tracing, -1 - trace always, >0 - start tracing after passing that address
 #
 # vm_callback:
-#    db  123456       # optional callback function to call before each instruction
+#    db  0xabcde      # optional callback function to call before each instruction
 #
 # binary_length:
-#    db  16384        # size of the binary image
+#    db  0x4000       # size of the binary image
 #
 # binary_data:
-#    ds  16384, 0     # binary image data
+#    ds  0x4000, 0    # binary image data
 
 .EOF

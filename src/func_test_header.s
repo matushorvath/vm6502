@@ -5,7 +5,7 @@
 
 # Start address for the functional test binary
 # Can be found using bin_files/6502_functional_test.lst, search for "Program start address is at"
-    db  1024        # 0x0400
+    db  0x0400
 
 # Load address for the functional test binary
     db  0
