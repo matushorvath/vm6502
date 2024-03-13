@@ -15,7 +15,7 @@
 
 # From util.s
 .IMPORT check_range
-.IMPORT mod_8bit
+.IMPORT mod
 
 # Where IO is mapped in 6502 memory
 .SYMBOL IOPORT                          65520       # 0xfff0;
@@ -160,9 +160,10 @@ push:
     call write
 
     add [reg_sp], -1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_sp]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_sp]
 
     ret 1
 .ENDFRAME
@@ -173,9 +174,10 @@ pull:
     arb -1
 
     add [reg_sp], 1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_sp]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_sp]
 
     add 256, [reg_sp], [rb - 1]         # stack starts at 0x100 = 256
     arb -1

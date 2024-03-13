@@ -17,7 +17,7 @@
 .IMPORT reg_y
 
 # From util.s
-.IMPORT mod_8bit
+.IMPORT mod
 
 ##########
 .FRAME addr; delta
@@ -37,14 +37,15 @@ execute_inc_dec_generic:
     call read
 
     add [rb - 3], [rb + delta], [rb - 1]            # read() + delta -> param0
-    arb -1
-    call mod_8bit
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
 
-    lt  127, [rb - 3], [flag_negative]
-    eq  [rb - 3], 0, [flag_zero]
+    lt  127, [rb - 4], [flag_negative]
+    eq  [rb - 4], 0, [flag_zero]
 
     add [rb + addr], 0, [rb - 1]
-    add [rb - 3], 0, [rb - 2]                       # mod_8bit() -> param1
+    add [rb - 4], 0, [rb - 2]                       # mod() -> param1
     arb -2
     call write
 
@@ -56,9 +57,10 @@ execute_inc_dec_generic:
 execute_inx:
 .FRAME
     add [reg_x], 1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_x]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_x]
 
     lt  127, [reg_x], [flag_negative]
     eq  [reg_x], 0, [flag_zero]
@@ -70,9 +72,10 @@ execute_inx:
 execute_iny:
 .FRAME
     add [reg_y], 1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_y]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_y]
 
     lt  127, [reg_y], [flag_negative]
     eq  [reg_y], 0, [flag_zero]
@@ -84,9 +87,10 @@ execute_iny:
 execute_dex:
 .FRAME
     add [reg_x], -1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_x]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_x]
 
     lt  127, [reg_x], [flag_negative]
     eq  [reg_x], 0, [flag_zero]
@@ -98,9 +102,10 @@ execute_dex:
 execute_dey:
 .FRAME
     add [reg_y], -1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_y]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_y]
 
     lt  127, [reg_y], [flag_negative]
     eq  [reg_y], 0, [flag_zero]

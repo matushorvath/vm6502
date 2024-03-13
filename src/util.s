@@ -1,7 +1,7 @@
 .EXPORT incpc
 .EXPORT check_range
-.EXPORT mod_8bit
-.EXPORT mod_16bit
+.EXPORT mod
+
 .EXPORT split_16_8_8
 .EXPORT split_8_4_4
 
@@ -10,8 +10,6 @@
 
 # From state.s
 .IMPORT reg_pc
-
-# TODO generic mod function instead of mod_Xbit, see vm8086
 
 ##########
 # Increase pc with wrap around
@@ -55,9 +53,9 @@ check_range_invalid_message:
 .ENDFRAME
 
 ##########
-# Calculate value mod 0x100, should only be used if the input is close to output
-mod_8bit:
-.FRAME value; tmp                                   # returns tmp
+# Calculate value mod divisor; should only be used if value/divisor is a small number
+mod:
+.FRAME value, divisor; tmp                                   # returns tmp
     arb -1
 
     # Handle negative value
@@ -65,55 +63,25 @@ mod_8bit:
     jnz [rb + tmp], mod_8bit_negative_loop
 
 mod_8bit_positive_loop:
-    lt  [rb + value], 256, [rb + tmp]
+    lt  [rb + value], [rb + divisor], [rb + tmp]
     jnz [rb + tmp], mod_8bit_done
 
-    add [rb + value], -256, [rb + value]
+    mul [rb + divisor], -1, [rb + tmp]
+    add [rb + value], [rb + tmp], [rb + value]
     jz  0, mod_8bit_positive_loop
 
 mod_8bit_negative_loop:
     lt  [rb + value], 0, [rb + tmp]
     jz  [rb + tmp], mod_8bit_done
 
-    add [rb + value], 256, [rb + value]
+    add [rb + value], [rb + divisor], [rb + value]
     jz  0, mod_8bit_negative_loop
 
 mod_8bit_done:
     add [rb + value], 0, [rb + tmp]
 
     arb 1
-    ret 1
-.ENDFRAME
-
-##########
-# Calculate value mod 0x10000, should only be used if the input is close to output
-mod_16bit:
-.FRAME value; tmp                                   # returns tmp
-    arb -1
-
-    # Handle negative value
-    lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], mod_16bit_negative_loop
-
-mod_16bit_positive_loop:
-    lt  [rb + value], 65536, [rb + tmp]
-    jnz [rb + tmp], mod_16bit_done
-
-    add [rb + value], -65536, [rb + value]
-    jz  0, mod_16bit_positive_loop
-
-mod_16bit_negative_loop:
-    lt  [rb + value], 0, [rb + tmp]
-    jz  [rb + tmp], mod_16bit_done
-
-    add [rb + value], 65536, [rb + value]
-    jz  0, mod_16bit_negative_loop
-
-mod_16bit_done:
-    add [rb + value], 0, [rb + tmp]
-
-    arb 1
-    ret 1
+    ret 2
 .ENDFRAME
 
 ##########
