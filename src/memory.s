@@ -14,7 +14,7 @@
 .IMPORT reg_sp
 
 # From util.s
-.IMPORT check_16bit
+.IMPORT check_range
 .IMPORT mod_8bit
 
 # Where IO is mapped in 6502 memory
@@ -29,8 +29,9 @@ init_memory:
 
     # Validate the load address is a valid 16-bit number
     add [binary + 1], 0, [rb - 1]
-    arb -1
-    call check_16bit
+    add 0xffff, 0, [rb - 2]
+    arb -2
+    call check_range
 
     # Validate the image will fit to 16-bits when loaded there
     add [binary + 1], [binary + 4], [rb + tgt]

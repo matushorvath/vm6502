@@ -26,7 +26,7 @@
 .IMPORT read
 
 # From util.s
-.IMPORT check_16bit
+.IMPORT check_range
 
 ##########
 # vm state
@@ -82,8 +82,9 @@ init_state:
 init_state_skip_reset_vec:
     # Check if pc is a sane value
     add [reg_pc], 0, [rb - 1]
-    arb -1
-    call check_16bit
+    add 0xffff, 0, [rb - 2]
+    arb -2
+    call check_range
 
     arb 1
     ret 0

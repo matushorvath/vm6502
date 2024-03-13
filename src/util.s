@@ -1,6 +1,5 @@
 .EXPORT incpc
-.EXPORT check_8bit
-.EXPORT check_16bit
+.EXPORT check_range
 .EXPORT mod_8bit
 .EXPORT mod_16bit
 .EXPORT split_16_8_8
@@ -11,6 +10,8 @@
 
 # From state.s
 .IMPORT reg_pc
+
+# TODO generic mod function instead of mod_Xbit, see vm8086
 
 ##########
 # Increase pc with wrap around
@@ -31,49 +32,26 @@ incpc_done:
 .ENDFRAME
 
 ##########
-# Halt if the parameter is not between 0 and 255
-check_8bit:
-.FRAME value; tmp
+# Halt if not 0 <= value <= range
+check_range:
+.FRAME value, range; tmp
     arb -1
 
     lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], check_8bit_invalid
-    lt  255, [rb + value], [rb + tmp]
-    jnz [rb + tmp], check_8bit_invalid
+    jnz [rb + tmp], check_range_invalid
+    lt  [rb + range], [rb + value], [rb + tmp]
+    jnz [rb + tmp], check_range_invalid
 
     arb 1
-    ret 1
+    ret 2
 
-check_8bit_invalid:
-    add check_8bit_invalid_message, 0, [rb - 1]
+check_range_invalid:
+    add check_range_invalid_message, 0, [rb - 1]
     arb -1
     call report_error
 
-check_8bit_invalid_message:
-    db  "invalid 8 bit value", 0
-.ENDFRAME
-
-##########
-# Halt if the parameter is not between 0 and 65535
-check_16bit:
-.FRAME value; tmp
-    arb -1
-
-    lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], check_16bit_invalid
-    lt  65535, [rb + value], [rb + tmp]
-    jnz [rb + tmp], check_16bit_invalid
-
-    arb 1
-    ret 1
-
-check_16bit_invalid:
-    add check_16bit_invalid_message, 0, [rb - 1]
-    arb -1
-    call report_error
-
-check_16bit_invalid_message:
-    db  "invalid 16 bit value", 0
+check_range_invalid_message:
+    db  "value out of range", 0
 .ENDFRAME
 
 ##########

@@ -36,7 +36,7 @@ execute_inc_dec_generic:
     arb -1
     call read
 
-    add [rb - 3], [rb + delta], [rb - 1]            # read() + delte -> param0
+    add [rb - 3], [rb + delta], [rb - 1]            # read() + delta -> param0
     arb -1
     call mod_8bit
 
