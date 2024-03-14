@@ -89,11 +89,11 @@ $(OBJDIR)/%.o: $(OBJDIR)/%.s
 	$(run-as)
 
 .PRECIOUS: $(OBJDIR)/%.s
-$(OBJDIR)/%.s: $(BINDIR)/gen_%.input
+$(OBJDIR)/%.s: $(OBJDIR)/gen_%.input
 	$(ICVM) $< > $@ || ( cat $@ ; false )
 
-.PRECIOUS: $(BINDIR)/gen_%.input
-$(BINDIR)/gen_%.input: $(OBJDIR)/gen_%.o $(LIBXIB)
+.PRECIOUS: $(OBJDIR)/gen_%.input
+$(OBJDIR)/gen_%.input: $(OBJDIR)/gen_%.o $(LIBXIB)
 	$(run-ld)
 
 # Microsoft Basic
