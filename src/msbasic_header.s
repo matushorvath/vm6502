@@ -1,16 +1,19 @@
 # This the header for the MS Basic binary.
 # It needs to be linked immediately after binary.o and immediately before the MS Basic binary itself.
 
-# Start address for the MS Basic binary, set to -1 to use the reset vector.
+.EXPORT binary
+
+binary:
+    # Start address for the MS Basic binary, set to -1 to use the reset vector.
     db  -1
 
-# Load address for the MS Basic binary, needs to match the BASROM memory region in $(MSBASICDIR)/vm6502.cfg.
+    # Load address for the MS Basic binary, needs to match the BASROM memory region in $(MSBASICDIR)/vm6502.cfg.
     db  0xc000
 
-# Disable tracing
+    # Disable tracing
     db  0
 
-# No callback
+    # No callback
     db  0
 
 .EOF
