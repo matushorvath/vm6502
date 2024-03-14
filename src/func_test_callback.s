@@ -19,7 +19,7 @@ func_test_prev_pc:
 
 # Test success address
 # Can be found using bin_files/6502_functional_test.lst, search for "test passed, no errors"
-.SYMBOL SUCCESS_ADDRESS                 13417       # 0x3469
+.SYMBOL SUCCESS_ADDRESS                 0x3469
 
 func_test_callback:
 .FRAME tmp                              # returns tmp

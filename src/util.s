@@ -1,8 +1,7 @@
 .EXPORT incpc
-.EXPORT check_8bit
-.EXPORT check_16bit
-.EXPORT mod_8bit
-.EXPORT mod_16bit
+.EXPORT check_range
+.EXPORT mod
+
 .EXPORT split_16_8_8
 .EXPORT split_8_4_4
 
@@ -20,7 +19,7 @@ incpc:
 
     add [reg_pc], 1, [reg_pc]
 
-    eq  [reg_pc], 65536, [rb + tmp]
+    eq  [reg_pc], 0x10000, [rb + tmp]
     jz  [rb + tmp], incpc_done
 
     add 0, 0, [reg_pc]
@@ -31,111 +30,58 @@ incpc_done:
 .ENDFRAME
 
 ##########
-# Halt if the parameter is not between 0 and 255
-check_8bit:
-.FRAME value; tmp
+# Halt if not 0 <= value <= range
+check_range:
+.FRAME value, range; tmp
     arb -1
 
     lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], check_8bit_invalid
-    lt  255, [rb + value], [rb + tmp]
-    jnz [rb + tmp], check_8bit_invalid
+    jnz [rb + tmp], check_range_invalid
+    lt  [rb + range], [rb + value], [rb + tmp]
+    jnz [rb + tmp], check_range_invalid
 
     arb 1
-    ret 1
+    ret 2
 
-check_8bit_invalid:
-    add check_8bit_invalid_message, 0, [rb - 1]
+check_range_invalid:
+    add check_range_invalid_message, 0, [rb - 1]
     arb -1
     call report_error
 
-check_8bit_invalid_message:
-    db  "invalid 8 bit value", 0
+check_range_invalid_message:
+    db  "value out of range", 0
 .ENDFRAME
 
 ##########
-# Halt if the parameter is not between 0 and 65535
-check_16bit:
-.FRAME value; tmp
-    arb -1
-
-    lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], check_16bit_invalid
-    lt  65535, [rb + value], [rb + tmp]
-    jnz [rb + tmp], check_16bit_invalid
-
-    arb 1
-    ret 1
-
-check_16bit_invalid:
-    add check_16bit_invalid_message, 0, [rb - 1]
-    arb -1
-    call report_error
-
-check_16bit_invalid_message:
-    db  "invalid 16 bit value", 0
-.ENDFRAME
-
-##########
-# Calculate value mod 0x100, should only be used if the input is close to output
-mod_8bit:
-.FRAME value; tmp                                   # returns tmp
+# Calculate value mod divisor; should only be used if value/divisor is a small number
+mod:
+.FRAME value, divisor; tmp                                   # returns tmp
     arb -1
 
     # Handle negative value
     lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], mod_8bit_negative_loop
+    jnz [rb + tmp], mod_negative_loop
 
-mod_8bit_positive_loop:
-    lt  [rb + value], 256, [rb + tmp]
-    jnz [rb + tmp], mod_8bit_done
+mod_positive_loop:
+    lt  [rb + value], [rb + divisor], [rb + tmp]
+    jnz [rb + tmp], mod_done
 
-    add [rb + value], -256, [rb + value]
-    jz  0, mod_8bit_positive_loop
+    mul [rb + divisor], -1, [rb + tmp]
+    add [rb + value], [rb + tmp], [rb + value]
+    jz  0, mod_positive_loop
 
-mod_8bit_negative_loop:
+mod_negative_loop:
     lt  [rb + value], 0, [rb + tmp]
-    jz  [rb + tmp], mod_8bit_done
+    jz  [rb + tmp], mod_done
 
-    add [rb + value], 256, [rb + value]
-    jz  0, mod_8bit_negative_loop
+    add [rb + value], [rb + divisor], [rb + value]
+    jz  0, mod_negative_loop
 
-mod_8bit_done:
+mod_done:
     add [rb + value], 0, [rb + tmp]
 
     arb 1
-    ret 1
-.ENDFRAME
-
-##########
-# Calculate value mod 0x10000, should only be used if the input is close to output
-mod_16bit:
-.FRAME value; tmp                                   # returns tmp
-    arb -1
-
-    # Handle negative value
-    lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], mod_16bit_negative_loop
-
-mod_16bit_positive_loop:
-    lt  [rb + value], 65536, [rb + tmp]
-    jnz [rb + tmp], mod_16bit_done
-
-    add [rb + value], -65536, [rb + value]
-    jz  0, mod_16bit_positive_loop
-
-mod_16bit_negative_loop:
-    lt  [rb + value], 0, [rb + tmp]
-    jz  [rb + tmp], mod_16bit_done
-
-    add [rb + value], 65536, [rb + value]
-    jz  0, mod_16bit_negative_loop
-
-mod_16bit_done:
-    add [rb + value], 0, [rb + tmp]
-
-    arb 1
-    ret 1
+    ret 2
 .ENDFRAME
 
 ##########
@@ -210,7 +156,8 @@ split_hi_lo_zero:
     ret 2
 
 split_hi_lo_pow:
-    db  1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768
+    db  0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080
+    db  0x0100, 0x0200, 0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000
 .ENDFRAME
 
 .EOF

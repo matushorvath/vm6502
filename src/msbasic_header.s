@@ -5,7 +5,7 @@
     db  -1
 
 # Load address for the MS Basic binary, needs to match the BASROM memory region in $(MSBASICDIR)/vm6502.cfg.
-    db  49152       # 0xc000
+    db  0xc000
 
 # Disable tracing
     db  0

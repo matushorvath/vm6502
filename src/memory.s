@@ -14,11 +14,11 @@
 .IMPORT reg_sp
 
 # From util.s
-.IMPORT check_16bit
-.IMPORT mod_8bit
+.IMPORT check_range
+.IMPORT mod
 
 # Where IO is mapped in 6502 memory
-.SYMBOL IOPORT                          65520       # 0xfff0;
+.SYMBOL IOPORT                          0xfff0
 
 ##########
 init_memory:
@@ -29,12 +29,13 @@ init_memory:
 
     # Validate the load address is a valid 16-bit number
     add [binary + 1], 0, [rb - 1]
-    arb -1
-    call check_16bit
+    add 0xffff, 0, [rb - 2]
+    arb -2
+    call check_range
 
     # Validate the image will fit to 16-bits when loaded there
     add [binary + 1], [binary + 4], [rb + tgt]
-    lt  65536, [rb + tgt], [rb + tmp]
+    lt  0x10000, [rb + tgt], [rb + tmp]
     jz  [rb + tmp], init_memory_load_address_ok
 
     add image_too_big_error, 0, [rb - 1]
@@ -153,15 +154,16 @@ write_done:
 ##########
 push:
 .FRAME value;
-    add 256, [reg_sp], [rb - 1]         # stack starts at 0x100 = 256
+    add 0x100, [reg_sp], [rb - 1]       # stack starts at 0x100
     add [rb + value], 0, [rb - 2]
     arb -2
     call write
 
     add [reg_sp], -1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_sp]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_sp]
 
     ret 1
 .ENDFRAME
@@ -172,11 +174,12 @@ pull:
     arb -1
 
     add [reg_sp], 1, [rb - 1]
-    arb -1
-    call mod_8bit
-    add [rb - 3], 0, [reg_sp]
+    add 0x100, 0, [rb - 2]
+    arb -2
+    call mod
+    add [rb - 4], 0, [reg_sp]
 
-    add 256, [reg_sp], [rb - 1]         # stack starts at 0x100 = 256
+    add 0x100, [reg_sp], [rb - 1]         # stack starts at 0x100
     arb -1
     call read
     add [rb - 3], 0, [rb + tmp]
