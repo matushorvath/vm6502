@@ -34,7 +34,7 @@ define run-as
 endef
 
 define run-ar
-	echo .L | cat - $^ > $@ || ( cat $@ ; false )
+	cat $^ | sed 's/^.C$$/.L/g' > $@ || ( cat $@ ; false )
 endef
 
 define run-ld
@@ -72,9 +72,9 @@ func_test: $(BINDIR)/func_test.input
 BASE_OBJS = vm6502.o arithmetic.o bits.o bitwise.o branch.o error.o exec.o flags.o incdec.o \
 	instructions.o loadstore.o memory.o params.o pushpull.o shift.o state.o trace.o util.o
 
-VM6502_OBJS = $(BASE_OBJS) binary.o
+VM6502_OBJS = $(BASE_OBJS) $(LIBXIB) binary.o
 
-$(BINDIR)/vm6502.input: $(addprefix $(OBJDIR)/, $(VM6502_OBJS)) $(LIBXIB)
+$(BINDIR)/vm6502.input: $(VM6502_OBJS:%.o=$(OBJDIR)/%.o)
 	$(run-ld)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.s
@@ -97,18 +97,18 @@ $(OBJDIR)/gen_%.input: $(OBJDIR)/gen_%.o $(LIBXIB)
 	$(run-ld)
 
 # Microsoft Basic
-MSBASIC_OBJS = $(BASE_OBJS) binary.o msbasic_header.o msbasic_binary.o
+MSBASIC_OBJS = $(BASE_OBJS) $(LIBXIB) binary.o msbasic_header.o msbasic_binary.o
 
-$(BINDIR)/msbasic.input: $(addprefix $(OBJDIR)/, $(MSBASIC_OBJS)) $(LIBXIB)
+$(BINDIR)/msbasic.input: $(MSBASIC_OBJS:%.o=$(OBJDIR)/%.o)
 	$(run-ld)
 
 $(OBJDIR)/msbasic_binary.o: $(MSBASICDIR)/tmp/vm6502.bin
 	$(run-bin2obj)
 
 # 6502 functional tests
-FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o binary.o func_test_header.o func_test_binary.o
+FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o $(LIBXIB) binary.o func_test_header.o func_test_binary.o
 
-$(BINDIR)/func_test.input: $(addprefix $(OBJDIR)/, $(FUNC_TEST_OBJS)) $(LIBXIB)
+$(BINDIR)/func_test.input: $(FUNC_TEST_OBJS:%.o=$(OBJDIR)/%.o)
 	$(run-ld)
 
 $(OBJDIR)/func_test_binary.o: $(FUNCTESTDIR)/bin_files/6502_functional_test.bin
