@@ -97,7 +97,7 @@ $(OBJDIR)/gen_%.input: $(OBJDIR)/gen_%.o $(LIBXIB)
 	$(run-ld)
 
 # Microsoft Basic
-MSBASIC_OBJS = $(BASE_OBJS) $(LIBXIB) binary.o msbasic_header.o msbasic_binary.o
+MSBASIC_OBJS = $(BASE_OBJS) $(LIBXIB) msbasic_header.o msbasic_binary.o
 
 $(BINDIR)/msbasic.input: $(MSBASIC_OBJS:%.o=$(OBJDIR)/%.o)
 	$(run-ld)
@@ -106,7 +106,7 @@ $(OBJDIR)/msbasic_binary.o: $(MSBASICDIR)/tmp/vm6502.bin
 	$(run-bin2obj)
 
 # 6502 functional tests
-FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o $(LIBXIB) binary.o func_test_header.o func_test_binary.o
+FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o $(LIBXIB) func_test_header.o func_test_binary.o
 
 $(BINDIR)/func_test.input: $(FUNC_TEST_OBJS:%.o=$(OBJDIR)/%.o)
 	$(run-ld)
