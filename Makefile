@@ -84,12 +84,19 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.s
 # For speed and convenience we will sacrifice 256 * 8 = 2048 bytes and memoize the operation.
 # The table for that is generated using gen_bits.s and can be found in file $(OBJDIR)/bits.s.
 
-$(OBJDIR)/bits.o: $(OBJDIR)/bits.s
+.PRECIOUS: $(OBJDIR)/%.o
+$(OBJDIR)/%.o: $(OBJDIR)/%.s
 	$(run-as)
 
-$(OBJDIR)/bits.s: $(BINDIR)/gen_bits.input
-	$(ICVM) $(BINDIR)/gen_bits.input > $@ || ( cat $@ ; false )
+.PRECIOUS: $(OBJDIR)/%.s
+$(OBJDIR)/%.s: $(BINDIR)/gen_%.input
+	$(ICVM) $< > $@ || ( cat $@ ; false )
 
+.PRECIOUS: $(BINDIR)/gen_%.input
+$(BINDIR)/gen_%.input: $(OBJDIR)/gen_%.o $(LIBXIB)
+	$(run-ld)
+
+# Microsoft Basic
 MSBASIC_OBJS = $(BASE_OBJS) binary.o msbasic_header.o msbasic_binary.o
 
 $(BINDIR)/msbasic.input: $(addprefix $(OBJDIR)/, $(MSBASIC_OBJS)) $(LIBXIB)
@@ -98,6 +105,7 @@ $(BINDIR)/msbasic.input: $(addprefix $(OBJDIR)/, $(MSBASIC_OBJS)) $(LIBXIB)
 $(OBJDIR)/msbasic_binary.o: $(MSBASICDIR)/tmp/vm6502.bin
 	$(run-bin2obj)
 
+# 6502 functional tests
 FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o binary.o func_test_header.o func_test_binary.o
 
 $(BINDIR)/func_test.input: $(addprefix $(OBJDIR)/, $(FUNC_TEST_OBJS)) $(LIBXIB)
@@ -105,11 +113,6 @@ $(BINDIR)/func_test.input: $(addprefix $(OBJDIR)/, $(FUNC_TEST_OBJS)) $(LIBXIB)
 
 $(OBJDIR)/func_test_binary.o: $(FUNCTESTDIR)/bin_files/6502_functional_test.bin
 	$(run-bin2obj)
-
-GEN_BITS_OBJS = gen_bits.o
-
-$(BINDIR)/gen_bits.input: $(addprefix $(OBJDIR)/, $(GEN_BITS_OBJS)) $(LIBXIB)
-	$(run-ld)
 
 # Clean
 .PHONY: clean
