@@ -1,5 +1,3 @@
-.EXPORT binary
-
 ##########
 # start of the binary to execute
 #
@@ -15,27 +13,32 @@
 # also used by heap.s in libxib. The VM without a binary must not use the heap unless it takes
 # care the overlap between the heap and the appended binary image.
 
-binary:
+# Header of the binary to execute. In this case there is no built-in binary,
+# so we just define the symbols to make the VM compile
 
-# After this we expect:
-#
-# binary_start_address:
-#    db  0x12345      # start at address 0x12345; or
-#    db  -1           # start at the reset vector (default 6502 behavior)
-#
-# binary_load_address:
-#    db  0xc000       # load address of the binary image in 6502 memory
-#
-# tracing:
-#    db  1            # 0 - disable tracing, -1 - trace always, >0 - start tracing after passing that address
-#
-# vm_callback:
-#    db  0xabcde      # optional callback function to call before each instruction
-#
-# binary_length:
-#    db  0x4000       # size of the binary image
-#
-# binary_data:
-#    ds  0x4000, 0    # binary image data
+.EXPORT binary_start_address
+.EXPORT binary_load_address
+.EXPORT binary_enable_tracing
+.EXPORT binary_vm_callback
+.EXPORT binary_length
+.EXPORT binary_data
+
+# Initial pc value, or -1 to use the reset vector
++0 = binary_start_address:
+
+# Load address of the binary image in 6502 memory
++1 = binary_load_address:
+
+# Tracing (0 - disable tracing, -1 - trace always, >0 - tracing past given address)
++2 = binary_enable_tracing:
+
+# Optional callback function to call before each instruction, zero if not used
++3 = binary_vm_callback:
+
+# Size of the binary image
++4 = binary_length:
+
+# Binary image data
++5 = binary_data:
 
 .EOF

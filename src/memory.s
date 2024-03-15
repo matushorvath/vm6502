@@ -4,8 +4,10 @@
 .EXPORT push
 .EXPORT pull
 
-# From binary.s
-.IMPORT binary
+# From the linked 6502 binary
+.IMPORT binary_load_address
+.IMPORT binary_length
+.IMPORT binary_data
 
 # From error.s
 .IMPORT report_error
@@ -28,13 +30,13 @@ init_memory:
     # Initialize memory space for the 6502.
 
     # Validate the load address is a valid 16-bit number
-    add [binary + 1], 0, [rb - 1]
+    add [binary_load_address], 0, [rb - 1]
     add 0xffff, 0, [rb - 2]
     arb -2
     call check_range
 
     # Validate the image will fit to 16-bits when loaded there
-    add [binary + 1], [binary + 4], [rb + tgt]
+    add [binary_load_address], [binary_length], [rb + tgt]
     lt  0x10000, [rb + tgt], [rb + tmp]
     jz  [rb + tmp], init_memory_load_address_ok
 
@@ -44,19 +46,19 @@ init_memory:
 
 init_memory_load_address_ok:
     # The 6502 memory space will start where the binary starts now
-    add binary + 5, 0, [mem]
+    add binary_data, 0, [mem]
 
     # Do we need to move the binary to a different load address?
-    jz  [binary + 1], init_memory_done
+    jz  [binary_load_address], init_memory_done
 
     # Yes, calculate beginning address of the source (binary),
-    add binary + 5, 0, [rb + src]
+    add binary_data, 0, [rb + src]
 
     # Calculate the beginning address of the target ([mem] + [load])
-    add [mem], [binary + 1], [rb + tgt]
+    add [mem], [binary_load_address], [rb + tgt]
 
     # Number of bytes to copy
-    add [binary + 4], 0, [rb + cnt]
+    add [binary_length], 0, [rb + cnt]
 
 init_memory_loop:
     # Move the image from src to tgt (iterating in reverse direction)

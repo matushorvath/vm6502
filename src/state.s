@@ -16,8 +16,8 @@
 .EXPORT pack_sr
 .EXPORT unpack_sr
 
-# From binary.s
-.IMPORT binary
+# From the linked 6502 binary
+.IMPORT binary_start_address
 
 # From error.s
 .IMPORT report_error
@@ -62,7 +62,7 @@ init_state:
     arb -1
 
     # Load the start address to pc
-    add [binary + 0], 0, [reg_pc]
+    add [binary_start_address], 0, [reg_pc]
 
     # If it is -1, use the reset vector
     eq  [reg_pc], -1, [rb + tmp]
