@@ -36,11 +36,11 @@ report_error:
     hlt
 
 report_error_msg_start:
-    db "vm6502 error: ", 0
+    db  "vm6502 error: ", 0
 report_error_msg_pc:
-    db " (pc: ", 0
+    db  " (pc: ", 0
 report_error_msg_end:
-    db ")", 0
+    db  ")", 0
 .ENDFRAME
 
 .EOF
