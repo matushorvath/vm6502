@@ -25,7 +25,7 @@ execute_inc:
     arb -1
     add 1, 0, [rb + delta]
 
-    jz 0, execute_inc_dec_generic
+    jz  0, execute_inc_dec_generic
 
 execute_dec:
     arb -1
