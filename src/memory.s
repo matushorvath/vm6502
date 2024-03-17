@@ -6,7 +6,8 @@
 
 # From the linked 6502 binary
 .IMPORT binary_load_address
-.IMPORT binary_length
+.IMPORT binary_count
+.IMPORT binary_header
 .IMPORT binary_data
 
 # From error.s
@@ -24,8 +25,8 @@
 
 ##########
 init_memory:
-.FRAME tmp, src, tgt, cnt
-    arb -4
+.FRAME section_index, section_address, section_start, section_size, tmp, src, tgt, cnt
+    arb -8
 
     # Initialize memory space for the 6502.
 
@@ -35,34 +36,56 @@ init_memory:
     arb -2
     call check_range
 
-    # Validate the image will fit to 16-bits when loaded there
-    add [binary_load_address], [binary_length], [rb + tgt]
+    # The 6502 memory space will start where section data starts now
+    add binary_data, 0, [mem]
+
+    # Process binary sections end to start
+    add [binary_count], 0, [rb + section_index]
+
+init_memory_section_loop:
+    jz  [rb + section_index], init_memory_section_done
+    add [rb + section_index], -1, [rb + section_index]
+
+    # Load section header
+    mul [rb + section_index], 3, [rb + tmp]
+    add binary_header, [rb + tmp], [rb + tmp]
+
+    add [rb + tmp], 0, [ip + 1]
+    add [0], 0, [rb + section_address]
+    add [rb + tmp], 1, [ip + 1]
+    add [0], 0, [rb + section_start]
+    add [rb + tmp], 2, [ip + 1]
+    add [0], 0, [rb + section_size]
+
+    # Offset section start address by binary_load_address
+    add [binary_load_address], [rb + section_address], [rb + section_address]
+
+    # Validate the section will fit to 16-bits when loaded there
+    add [rb + section_address], [rb + section_size], [rb + tgt]
     lt  0x10000, [rb + tgt], [rb + tmp]
-    jz  [rb + tmp], init_memory_load_address_ok
+    jz  [rb + tmp], init_memory_section_address_ok
 
     add image_too_big_error, 0, [rb - 1]
     arb -1
     call report_error
 
-init_memory_load_address_ok:
-    # The 6502 memory space will start where the binary starts now
-    add binary_data, 0, [mem]
+init_memory_section_address_ok:
+    # Calculate beginning address of the source
+    add binary_data, [rb + section_start], [rb + src]
 
-    # Do we need to move the binary to a different load address?
-    jz  [binary_load_address], init_memory_done
+    # Calculate the beginning address of the target
+    add [mem], [rb + section_address], [rb + tgt]
 
-    # Yes, calculate beginning address of the source (binary),
-    add binary_data, 0, [rb + src]
-
-    # Calculate the beginning address of the target ([mem] + [load])
-    add [mem], [binary_load_address], [rb + tgt]
+    # Do we need to move the section at all?
+    eq  [rb + src], [rb + tgt], [rb + tmp]
+    jnz [rb + tmp], init_memory_bytes_done
 
     # Number of bytes to copy
-    add [binary_length], 0, [rb + cnt]
+    add [rb + section_size], 0, [rb + cnt]      # TODO refactor, don't need cnt
 
-init_memory_loop:
+init_memory_bytes_loop:
     # Move the image from src to tgt (iterating in reverse direction)
-    jz  [rb + cnt], init_memory_done
+    jz  [rb + cnt], init_memory_bytes_done
     add [rb + cnt], -1, [rb + cnt]
 
     # Copy one byte
@@ -74,10 +97,13 @@ init_memory_loop:
     add [rb + src], [rb + cnt], [ip + 3]
     add 0, 0, [0]
 
-    jz  0, init_memory_loop
+    jz  0, init_memory_bytes_loop
 
-init_memory_done:
-    arb 4
+init_memory_bytes_done:
+    jz  0, init_memory_section_loop
+
+init_memory_section_done:
+    arb 8
     ret 0
 .ENDFRAME
 

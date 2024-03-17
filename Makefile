@@ -43,7 +43,7 @@ define run-ld
 endef
 
 define run-bin2obj
-	wc -c $< | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
+	wc -c $< | sed 's/$$/\/binary/' | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
 endef
 
 # Build
