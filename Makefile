@@ -43,7 +43,7 @@ define run-ld
 endef
 
 define run-bin2obj
-	ls -n $< | awk '{ printf "%s ", $$5 }' | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
+	wc -c $< | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
 endef
 
 # Build
