@@ -70,7 +70,7 @@ func_test: $(BINDIR)/func_test.input
 # then the (optional) 6502 image header and data.
 
 BASE_OBJS = vm6502.o arithmetic.o bits.o bitwise.o branch.o error.o exec.o flags.o incdec.o \
-	instructions.o loadstore.o memory.o params.o pushpull.o shift.o state.o trace.o util.o
+	instructions.o load.o loadstore.o memory.o params.o pushpull.o shift.o state.o trace.o util.o
 
 VM6502_OBJS = $(BASE_OBJS) $(LIBXIB) binary.o
 
