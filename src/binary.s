@@ -20,7 +20,8 @@
 .EXPORT binary_load_address
 .EXPORT binary_enable_tracing
 .EXPORT binary_vm_callback
-.EXPORT binary_length
+.EXPORT binary_count
+.EXPORT binary_header
 .EXPORT binary_data
 
 # Initial pc value, or -1 to use the reset vector
@@ -35,10 +36,13 @@
 # Optional callback function to call before each instruction, zero if not used
 +3 = binary_vm_callback:
 
-# Size of the binary image
-+4 = binary_length:
+# Number of sections, here we assume just one
++4 = binary_count:
+
+# Load address of the first section
++5 = binary_header:
 
 # Binary image data
-+5 = binary_data:
++8 = binary_data:
 
 .EOF

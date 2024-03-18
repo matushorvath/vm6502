@@ -16,6 +16,8 @@
 .EXPORT pack_sr
 .EXPORT unpack_sr
 
+.EXPORT mem
+
 # From the linked 6502 binary
 .IMPORT binary_start_address
 
@@ -54,6 +56,9 @@ flag_interrupt:             # I
 flag_zero:                  # Z
     db  0
 flag_carry:                 # C
+    db  0
+
+mem:
     db  0
 
 ##########
