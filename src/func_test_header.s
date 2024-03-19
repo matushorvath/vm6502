@@ -1,5 +1,5 @@
 # This the header for the 6502 functional test binary.
-# It needs to be linked immediately after binary.o and immediately before the functional test binary itself.
+# It needs to be linked immediately before the functional test binary itself.
 
 # The binary is available in git repository https://github.com/Klaus2m5/6502_65C02_functional_tests
 

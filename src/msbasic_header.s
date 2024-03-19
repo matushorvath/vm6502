@@ -1,5 +1,5 @@
 # This the header for the MS Basic binary.
-# It needs to be linked immediately after binary.o and immediately before the MS Basic binary itself.
+# It needs to be linked immediately before the MS Basic binary itself.
 
 .EXPORT binary_start_address
 .EXPORT binary_load_address

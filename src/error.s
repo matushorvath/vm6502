@@ -24,7 +24,8 @@ report_error:
 
     add [reg_pc], 0, [rb - 1]
     add 16, 0, [rb - 2]
-    arb -2
+    add 0, 0, [rb - 3]
+    arb -3
     call print_num_radix
 
     add report_error_msg_end, 0, [rb - 1]
