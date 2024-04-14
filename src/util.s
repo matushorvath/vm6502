@@ -119,6 +119,8 @@ split_16_8_8:
 .ENDFRAME
 
 ##########
+# TODO use multiple entry points pattern, see vm8086 for implementation
+# TODO possibly use a table for split_8_4_4, see vm8086 for implementation
 split_hi_lo:
 .FRAME vin, bits; vh, vl, bit, pow, tmp             # returns vh, vl
     arb -5
@@ -126,6 +128,7 @@ split_hi_lo:
     add 0, 0, [rb + vh]
     add [rb + vin], 0, [rb + vl]
 
+    # TODO Should this be add [rb + bits], 0, [rb + bit]? It would be faster for split_8_4_4.
     add 8, 0, [rb + bit]
 
 split_hi_lo_loop:
