@@ -27,20 +27,20 @@ func_test_callback:
 
     # Have we reached the successful end of the test?
     eq  [reg_pc], SUCCESS_ADDRESS, [rb + tmp]
-    jnz [rb + tmp], func_test_callback_passed
+    jnz [rb + tmp], .passed
 
     # Are we in a tight loop?
     eq  [reg_pc], [func_test_prev_pc], [rb + tmp]
-    jnz [rb + tmp], func_test_callback_failed
+    jnz [rb + tmp], .failed
 
     # Save previous pc value
     add [reg_pc], 0, [func_test_prev_pc]
 
     # Return 1 to keep running
     add 1, 0, [rb + tmp]
-    jz  0, func_test_callback_done
+    jz  0, .done
 
-func_test_callback_passed:
+.passed:
     # Successful test run
     add func_test_passed, 0, [rb - 1]
     arb -1
@@ -48,9 +48,9 @@ func_test_callback_passed:
 
     # Return 0 to halt
     add 0, 0, [rb + tmp]
-    jz  0, func_test_callback_done
+    jz  0, .done
 
-func_test_callback_failed:
+.failed:
     # Failed test run
     add func_test_failed_start, 0, [rb - 1]
     arb -1
@@ -71,7 +71,7 @@ func_test_callback_failed:
     # If you don't redirect stdin, this just waits for console input forever
     call halt_and_catch_fire
 
-func_test_callback_done:
+.done:
     arb 1
     ret 0
 .ENDFRAME

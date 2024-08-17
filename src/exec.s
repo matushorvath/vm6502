@@ -29,36 +29,36 @@ execute:
 .FRAME tmp, op, exec_fn, param_fn
     arb -4
 
-execute_loop:
+.loop:
     # Skip tracing if disabled
-    jz  [binary_enable_tracing], execute_tracing_done
+    jz  [binary_enable_tracing], .tracing_done
 
     # If the [binary_enable_tracing] flag is positive, we use it as an address
     # starting from where we should turn on tracing
     eq  [binary_enable_tracing], [reg_pc], [rb + tmp]
-    jz  [rb + tmp], execute_tracing_different_address
+    jz  [rb + tmp], .tracing_different_address
 
     # Address match, turn on tracing
     add -1, 0, [binary_enable_tracing]
 
-execute_tracing_different_address:
+.tracing_different_address:
     # Print trace if enabled
     eq  [binary_enable_tracing], -1, [rb + tmp]
-    jz  [rb + tmp], execute_tracing_done
+    jz  [rb + tmp], .tracing_done
 
     call print_trace
 
-execute_tracing_done:
+.tracing_done:
     # Call the callback if enabled
-    jz  [binary_vm_callback], execute_callback_done
+    jz  [binary_vm_callback], .callback_done
 
     call [binary_vm_callback]
-    jnz [rb - 2], execute_callback_done
+    jnz [rb - 2], .callback_done
 
     # Callback returned 0, halt
-    jz  0, execute_hlt
+    jz  0, .hlt
 
-execute_callback_done:
+.callback_done:
     # Read op code
     add [reg_pc], 0, [rb - 1]
     arb -1
@@ -70,7 +70,7 @@ execute_callback_done:
 
     # Process hlt
     eq  [rb + op], 2, [rb + tmp]
-    jnz [rb + tmp], execute_hlt
+    jnz [rb + tmp], .hlt
 
     # Find exec and param functions for this instruction
     mul [rb + op], 7, [rb + tmp]                            # one record is 7 bytes long
@@ -82,22 +82,22 @@ execute_callback_done:
     add [0], 0, [rb + param_fn]
 
     # If there is a param_fn, call it; then call exec_fn with the result as a parameter
-    jz  [rb + param_fn], execute_no_param_fn
+    jz  [rb + param_fn], .no_param_fn
 
     call [rb + param_fn]
     add [rb - 2], 0, [rb - 1]
     arb -1
     call [rb + exec_fn + 1]     # +1 to compensate for arb -1
 
-    jz  0, execute_loop
+    jz  0, .loop
 
-execute_no_param_fn:
+.no_param_fn:
     # No param_fn, just call exec_fn with no parameters
     call [rb + exec_fn]
 
-    jz  0, execute_loop
+    jz  0, .loop
 
-execute_hlt:
+.hlt:
     arb 4
     ret 0
 .ENDFRAME

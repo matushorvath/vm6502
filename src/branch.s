@@ -172,80 +172,80 @@ execute_rts:
 ##########
 execute_bcc:
 .FRAME addr;
-    jnz [flag_carry], execute_bcc_done
+    jnz [flag_carry], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bcc_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_bcs:
 .FRAME addr;
-    jz  [flag_carry], execute_bcs_done
+    jz  [flag_carry], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bcs_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_bne:
 .FRAME addr;
-    jnz [flag_zero], execute_bne_done
+    jnz [flag_zero], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bne_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_beq:
 .FRAME addr;
-    jz  [flag_zero], execute_beq_done
+    jz  [flag_zero], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_beq_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_bpl:
 .FRAME addr;
-    jnz [flag_negative], execute_bpl_done
+    jnz [flag_negative], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bpl_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_bmi:
 .FRAME addr;
-    jz  [flag_negative], execute_bmi_done
+    jz  [flag_negative], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bmi_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_bvc:
 .FRAME addr;
-    jnz [flag_overflow], execute_bvc_done
+    jnz [flag_overflow], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bvc_done:
+.done:
     ret 1
 .ENDFRAME
 
 ##########
 execute_bvs:
 .FRAME addr;
-    jz  [flag_overflow], execute_bvs_done
+    jz  [flag_overflow], .done
     add [rb + addr], 0, [reg_pc]
 
-execute_bvs_done:
+.done:
     ret 1
 .ENDFRAME
 

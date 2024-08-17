@@ -54,12 +54,12 @@ execute_asl_rol_generic:
     # Determine new carry
     add 0, 0, [flag_carry]
     lt  [rb + value], 0x100, [rb + tmp]
-    jnz [rb + tmp], execute_asl_rol_no_carry
+    jnz [rb + tmp], .no_carry
 
     add 1, 0, [flag_carry]
     add [rb + value], -0x100, [rb + value]
 
-execute_asl_rol_no_carry:
+.no_carry:
     # Update flags
     lt  0x7f, [rb + value], [flag_negative]
     eq  [rb + value], 0, [flag_zero]
@@ -85,12 +85,12 @@ execute_asl_a:
     # Determine new carry
     add 0, 0, [flag_carry]
     lt  [reg_a], 0x100, [rb + tmp]
-    jnz [rb + tmp], execute_asl_a_no_carry
+    jnz [rb + tmp], .no_carry
 
     add 1, 0, [flag_carry]
     add [reg_a], -0x100, [reg_a]
 
-execute_asl_a_no_carry:
+.no_carry:
     # Update flags
     lt  0x7f, [reg_a], [flag_negative]
     eq  [reg_a], 0, [flag_zero]
@@ -111,12 +111,12 @@ execute_rol_a:
     # Determine new carry
     add 0, 0, [flag_carry]
     lt  [reg_a], 0x100, [rb + tmp]
-    jnz [rb + tmp], execute_rol_a_no_carry
+    jnz [rb + tmp], .no_carry
 
     add 1, 0, [flag_carry]
     add [reg_a], -0x100, [reg_a]
 
-execute_rol_a_no_carry:
+.no_carry:
     # Update flags
     lt  0x7f, [reg_a], [flag_negative]
     eq  [reg_a], 0, [flag_zero]

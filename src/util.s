@@ -20,11 +20,11 @@ incpc:
     add [reg_pc], 1, [reg_pc]
 
     eq  [reg_pc], 0x10000, [rb + tmp]
-    jz  [rb + tmp], incpc_done
+    jz  [rb + tmp], .done
 
     add 0, 0, [reg_pc]
 
-incpc_done:
+.done:
     arb 1
     ret 0
 .ENDFRAME
@@ -36,19 +36,19 @@ check_range:
     arb -1
 
     lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], check_range_invalid
+    jnz [rb + tmp], .invalid
     lt  [rb + range], [rb + value], [rb + tmp]
-    jnz [rb + tmp], check_range_invalid
+    jnz [rb + tmp], .invalid
 
     arb 1
     ret 2
 
-check_range_invalid:
-    add check_range_invalid_message, 0, [rb - 1]
+.invalid:
+    add .invalid_message, 0, [rb - 1]
     arb -1
     call report_error
 
-check_range_invalid_message:
+.invalid_message:
     db  "value out of range", 0
 .ENDFRAME
 
@@ -60,24 +60,24 @@ mod:
 
     # Handle negative value
     lt  [rb + value], 0, [rb + tmp]
-    jnz [rb + tmp], mod_negative_loop
+    jnz [rb + tmp], .negative_loop
 
-mod_positive_loop:
+.positive_loop:
     lt  [rb + value], [rb + divisor], [rb + tmp]
-    jnz [rb + tmp], mod_done
+    jnz [rb + tmp], .done
 
     mul [rb + divisor], -1, [rb + tmp]
     add [rb + value], [rb + tmp], [rb + value]
-    jz  0, mod_positive_loop
+    jz  0, .positive_loop
 
-mod_negative_loop:
+.negative_loop:
     lt  [rb + value], 0, [rb + tmp]
-    jz  [rb + tmp], mod_done
+    jz  [rb + tmp], .done
 
     add [rb + value], [rb + divisor], [rb + value]
-    jz  0, mod_negative_loop
+    jz  0, .negative_loop
 
-mod_done:
+.done:
     add [rb + value], 0, [rb + tmp]
 
     arb 1
@@ -131,34 +131,34 @@ split_hi_lo:
     # TODO Should this be add [rb + bits], 0, [rb + bit]? It would be faster for split_8_4_4.
     add 8, 0, [rb + bit]
 
-split_hi_lo_loop:
+.loop:
     add [rb + bit], -1, [rb + bit]
 
     # Load power of 2 for this high bit
-    add split_hi_lo_pow, [rb + bits], [rb + tmp]
+    add .pow, [rb + bits], [rb + tmp]
     add [rb + tmp], [rb + bit], [ip + 1]
     add [0], 0, [rb + pow]
 
     # Is vl smaller than pow?
     lt  [rb + vl], [rb + pow], [rb + tmp]
-    jnz [rb + tmp], split_hi_lo_zero
+    jnz [rb + tmp], .zero
 
     # If vl >= pow: subtract pow_hi from vl, add pow_lo to vh
     mul [rb + pow], -1, [rb + pow]
     add [rb + vl], [rb + pow], [rb + vl]
 
-    add split_hi_lo_pow, [rb + bit], [ip + 1]
+    add .pow, [rb + bit], [ip + 1]
     add [0], 0, [rb + pow]
     add [rb + vh], [rb + pow], [rb + vh]
 
-split_hi_lo_zero:
+.zero:
     # Next bit
-    jnz [rb + bit], split_hi_lo_loop
+    jnz [rb + bit], .loop
 
     arb 5
     ret 2
 
-split_hi_lo_pow:
+.pow:
     db  0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080
     db  0x0100, 0x0200, 0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000
 .ENDFRAME

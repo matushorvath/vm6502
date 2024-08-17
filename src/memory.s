@@ -20,41 +20,41 @@ read:
 
     # Is this IO?
     eq  [rb + addr], IOPORT, [rb + tmp]
-    jz  [rb + tmp], read_mem
+    jz  [rb + tmp], .mem
 
     # Yes, do we need to simulate a 0x0d?
-    jnz [read_io_simulate_0d_flag], read_io_simulate_0d
+    jnz [.simulate_0d_flag], .simulate_0d
 
-read_io_next_char:
+.next_char:
     # No, regular input
     in  [rb + value]
 
     # Drop any 0x0d characters, we simulate those after a 0x0a automatically
     eq  [rb + value], 13, [rb + tmp]
-    jnz [rb + tmp], read_io_next_char
+    jnz [rb + tmp], .next_char
 
     # If 0x0a, next input char should be 0x0d
-    eq  [rb + value], 10, [read_io_simulate_0d_flag]
+    eq  [rb + value], 10, [.simulate_0d_flag]
 
-    jz  0, read_done
+    jz  0, .done
 
-read_io_simulate_0d:
+.simulate_0d:
     # If the last character we got was 0x0a, simulate a following 0x0d
-    add 0, 0, [read_io_simulate_0d_flag]
+    add 0, 0, [.simulate_0d_flag]
     add 13, 0, [rb + value]
 
-    jz  0, read_done
+    jz  0, .done
 
-read_mem:
+.mem:
     # No, regular memory read
     add [mem], [rb + addr], [ip + 1]
     add [0], 0, [rb + value]
 
-read_done:
+.done:
     arb 2
     ret 1
 
-read_io_simulate_0d_flag:
+.simulate_0d_flag:
     db  0
 .ENDFRAME
 
@@ -65,22 +65,22 @@ write:
 
     # Is this IO?
     eq  [rb + addr], IOPORT, [rb + tmp]
-    jz  [rb + tmp], write_mem
+    jz  [rb + tmp], .mem
 
     # Yes, drop any 0x0a characters
     eq  [rb + value], 13, [rb + tmp]
-    jnz [rb + tmp], write_done
+    jnz [rb + tmp], .done
 
     # Output the character
     out [rb + value]
-    jz  0, write_done
+    jz  0, .done
 
-write_mem:
+.mem:
     # No, regular memory write
     add [mem], [rb + addr], [ip + 3]
     add [rb + value], 0, [0]
 
-write_done:
+.done:
     arb 1
     ret 2
 .ENDFRAME

@@ -34,7 +34,7 @@ execute_adc:
     add [rb - 3], 0, [rb + b]
 
     # Decimal flag?
-    jz  [flag_decimal], execute_adc_not_decimal
+    jz  [flag_decimal], .not_decimal
 
     # Split a into high and low part
     add [reg_a], 0, [rb - 1]
@@ -60,10 +60,10 @@ execute_adc:
     lt  9, [rb + a_lo], [flag_carry]
 
     # If carry, reduce a_lo by 10
-    jz  [flag_carry], execute_adc_bcd_lo_no_carry
+    jz  [flag_carry], .bcd_lo_no_carry
     add [rb + a_lo], -10, [rb + a_lo]
 
-execute_adc_bcd_lo_no_carry:
+.bcd_lo_no_carry:
     # Sum the hi parts plus lo carry -> a_hi
     add [rb + a_hi], [rb + b_hi], [rb + a_hi]
     add [rb + a_hi], [flag_carry], [rb + a_hi]
@@ -72,17 +72,17 @@ execute_adc_bcd_lo_no_carry:
     lt  9, [rb + a_hi], [flag_carry]
 
     # If carry, reduce a_hi by 10
-    jz  [flag_carry], execute_adc_bcd_hi_no_carry
+    jz  [flag_carry], .bcd_hi_no_carry
     add [rb + a_hi], -10, [rb + a_hi]
 
-execute_adc_bcd_hi_no_carry:
+.bcd_hi_no_carry:
     # Sum the lo and hi parts
     mul [rb + a_hi], 16, [rb + sum]
     add [rb + sum], [rb + a_lo], [rb + sum]
 
-    jz  0, execute_adc_update_flags
+    jz  0, .update_flags
 
-execute_adc_not_decimal:
+.not_decimal:
     # Sum [reg_a] + [b] + [flag_carry]
     add [reg_a], [rb + b], [rb + sum]
     add [rb + sum], [flag_carry], [rb + sum]
@@ -91,10 +91,10 @@ execute_adc_not_decimal:
     lt 0xff, [rb + sum], [flag_carry]
 
     # If carry, reduce sum by 0x100
-    jz  [flag_carry], execute_adc_update_flags
+    jz  [flag_carry], .update_flags
     add [rb + sum], -0x100, [rb + sum]
 
-execute_adc_update_flags:
+.update_flags:
     # Update overflow flag
     add [reg_a], 0, [rb - 1]
     add [rb + b], 0, [rb - 2]
@@ -124,7 +124,7 @@ execute_sbc:
     add [rb - 3], 0, [rb + b]
 
     # Decimal flag?
-    jz  [flag_decimal], execute_sbc_not_decimal
+    jz  [flag_decimal], .not_decimal
 
     # Split a into high and low part
     add [reg_a], 0, [rb - 1]
@@ -153,10 +153,10 @@ execute_sbc:
     lt  -1, [rb + a_lo], [flag_carry]
 
     # If carry, increase a_lo by 10
-    jnz [flag_carry], execute_sbc_bcd_lo_no_carry
+    jnz [flag_carry], .bcd_lo_no_carry
     add [rb + a_lo], 10, [rb + a_lo]
 
-execute_sbc_bcd_lo_no_carry:
+.bcd_lo_no_carry:
     # Subtract hi parts [a_hi] - [b_hi] + [flag_carry] - 1 -> a_hi
     mul [rb + b_hi], -1, [rb + diff]
     add [rb + diff], [rb + a_hi], [rb + diff]
@@ -168,17 +168,17 @@ execute_sbc_bcd_lo_no_carry:
     lt  -1, [rb + a_hi], [flag_carry]
 
     # If carry, increase a_hi by 10
-    jnz [flag_carry], execute_sbc_bcd_hi_no_carry
+    jnz [flag_carry], .bcd_hi_no_carry
     add [rb + a_hi], 10, [rb + a_hi]
 
-execute_sbc_bcd_hi_no_carry:
+.bcd_hi_no_carry:
     # Sum the lo and hi parts
     mul [rb + a_hi], 16, [rb + diff]
     add [rb + diff], [rb + a_lo], [rb + diff]
 
-    jz  0, execute_sbc_update_flags
+    jz  0, .update_flags
 
-execute_sbc_not_decimal:
+.not_decimal:
     # Subtract [reg_a] - [b] + [flag_carry] - 1
     mul [rb + b], -1, [rb + diff]
     add [rb + diff], [reg_a], [rb + diff]
@@ -189,10 +189,10 @@ execute_sbc_not_decimal:
     lt  -1, [rb + diff], [flag_carry]
 
     # If carry, increase a_hi by 0x100
-    jnz [flag_carry], execute_sbc_update_flags
+    jnz [flag_carry], .update_flags
     add [rb + diff], 0x100, [rb + diff]
 
-execute_sbc_update_flags:
+.update_flags:
     # Update overflow flag
     add [rb + b], 0, [rb - 1]
     add [rb + diff], 0, [rb - 2]
@@ -270,18 +270,18 @@ update_overflow:
     lt  0x7f, [rb + res], [rb + res]
 
     eq  [rb + op1], [rb + op2], [rb + tmp]
-    jnz [rb + tmp], update_overflow_same_sign
+    jnz [rb + tmp], .same_sign
 
     # When operands are different signs, overflow is always false
     add 0, 0, [flag_overflow]
-    jz  0, update_overflow_done
+    jz  0, .done
 
-update_overflow_same_sign:
+.same_sign:
     # When operands are the same sign but different than the result, overflow is true
     eq  [rb + op1], [rb + res], [rb + tmp]
     eq  [rb + tmp], 0, [flag_overflow]
 
-update_overflow_done:
+.done:
     arb 1
     ret 3
 .ENDFRAME

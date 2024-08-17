@@ -71,7 +71,7 @@ init_state:
 
     # If it is -1, use the reset vector
     eq  [reg_pc], -1, [rb + tmp]
-    jz  [rb + tmp], init_state_skip_reset_vec
+    jz  [rb + tmp], .skip_reset_vec
 
     # Read the reset vector from 0xfffc and 0xfffd
     add 0xfffd, 0, [rb - 1]
@@ -84,7 +84,7 @@ init_state:
     call read
     add [rb - 3], [rb + tmp], [reg_pc]      # read(0xfffc) + read(0xfffd) * 0x100 -> [reg_pc]
 
-init_state_skip_reset_vec:
+.skip_reset_vec:
     # Check if pc is a sane value
     add [reg_pc], 0, [rb - 1]
     add 0xffff, 0, [rb - 2]
@@ -102,29 +102,29 @@ pack_sr:
 
     add 0b00110000, 0, [rb + sr]
 
-    jz  [flag_carry], pack_sr_after_carry
+    jz  [flag_carry], .after_carry
     add [rb + sr], 0b00000001, [rb + sr]
-pack_sr_after_carry:
+.after_carry:
 
-    jz  [flag_zero], pack_sr_after_zero
+    jz  [flag_zero], .after_zero
     add [rb + sr], 0b00000010, [rb + sr]
-pack_sr_after_zero:
+.after_zero:
 
-    jz  [flag_interrupt], pack_sr_after_interrupt
+    jz  [flag_interrupt], .after_interrupt
     add [rb + sr], 0b00000100, [rb + sr]
-pack_sr_after_interrupt:
+.after_interrupt:
 
-    jz  [flag_decimal], pack_sr_after_decimal
+    jz  [flag_decimal], .after_decimal
     add [rb + sr], 0b00001000, [rb + sr]
-pack_sr_after_decimal:
+.after_decimal:
 
-    jz  [flag_overflow], pack_sr_after_overflow
+    jz  [flag_overflow], .after_overflow
     add [rb + sr], 0b01000000, [rb + sr]
-pack_sr_after_overflow:
+.after_overflow:
 
-    jz  [flag_negative], pack_sr_after_negative
+    jz  [flag_negative], .after_negative
     add [rb + sr], 0b10000000, [rb + sr]
-pack_sr_after_negative:
+.after_negative:
 
     arb 1
     ret 0
@@ -134,39 +134,39 @@ pack_sr_after_negative:
 unpack_sr:
 .FRAME sr;
     lt  0b01111111, [rb + sr], [flag_negative]
-    jz  [flag_negative], unpack_sr_after_negative
+    jz  [flag_negative], .after_negative
     add [rb + sr], -0b10000000, [rb + sr]
-unpack_sr_after_negative:
+.after_negative:
 
     lt  0b00111111, [rb + sr], [flag_overflow]
-    jz  [flag_overflow], unpack_sr_after_overflow
+    jz  [flag_overflow], .after_overflow
     add [rb + sr], -0b01000000, [rb + sr]
-unpack_sr_after_overflow:
+.after_overflow:
 
     lt  0b00011111, [rb + sr], [flag_decimal]               # flag_decimal used as tmp
-    jz  [flag_decimal], unpack_sr_after_ignored
+    jz  [flag_decimal], .after_ignored
     add [rb + sr], -0b00100000, [rb + sr]
-unpack_sr_after_ignored:
+.after_ignored:
 
     lt  0b00001111, [rb + sr], [flag_decimal]               # flag_decimal used as tmp
-    jz  [flag_decimal], unpack_sr_after_break
+    jz  [flag_decimal], .after_break
     add [rb + sr], -0b00010000, [rb + sr]
-unpack_sr_after_break:
+.after_break:
 
     lt  0b00000111, [rb + sr], [flag_decimal]
-    jz  [flag_decimal], unpack_sr_after_decimal
+    jz  [flag_decimal], .after_decimal
     add [rb + sr], -0b00001000, [rb + sr]
-unpack_sr_after_decimal:
+.after_decimal:
 
     lt  0b00000011, [rb + sr], [flag_interrupt]
-    jz  [flag_interrupt], unpack_sr_after_interrupt
+    jz  [flag_interrupt], .after_interrupt
     add [rb + sr], -0b00000100, [rb + sr]
-unpack_sr_after_interrupt:
+.after_interrupt:
 
     lt  0b00000001, [rb + sr], [flag_zero]
-    jz  [flag_zero], unpack_sr_after_zero
+    jz  [flag_zero], .after_zero
     add [rb + sr], -0b00000010, [rb + sr]
-unpack_sr_after_zero:
+.after_zero:
 
     lt  0, [rb + sr], [flag_carry]
 
