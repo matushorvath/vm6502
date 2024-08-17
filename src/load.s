@@ -34,17 +34,17 @@ init_memory:
     # Process binary sections end to start
     add [binary_count], 0, [rb + section_index]
 
-init_memory_loop:
-    jz  [rb + section_index], init_memory_done
+.loop:
+    jz  [rb + section_index], .done
     add [rb + section_index], -1, [rb + section_index]
 
     add [rb + section_index], 0, [rb - 1]
     arb -1
     call init_section
 
-    jz  0, init_memory_loop
+    jz  0, .loop
 
-init_memory_done:
+.done:
     arb 1
     ret 0
 .ENDFRAME
@@ -71,7 +71,7 @@ init_section:
     # Validate the section will fit to 16-bits when moved there
     add [rb + section_address], [rb + section_size], [rb + tmp]
     lt  0x10000, [rb + tmp], [rb + tmp]
-    jnz [rb + tmp], init_section_too_big
+    jnz [rb + tmp], .too_big
 
     # Source intcode address where this section currently is
     add binary_data, [rb + section_start], [rb - 1]
@@ -86,12 +86,12 @@ init_section:
     arb 4
     ret 1
 
-init_section_too_big:
-    add init_section_too_big_message, 0, [rb - 1]
+.too_big:
+    add .too_big_message, 0, [rb - 1]
     arb -1
     call report_error
 
-init_section_too_big_message:
+.too_big_message:
     db  "image too big to load at specified address", 0
 .ENDFRAME
 
@@ -102,11 +102,11 @@ move_memory_reverse:
 
     # Do we need to move the memory at all?
     eq  [rb + source], [rb + target], [rb + tmp]
-    jnz [rb + tmp], move_memory_reverse_done
+    jnz [rb + tmp], .done
 
-move_memory_reverse_loop:
+.loop:
     # Move a section from source to target (iterating in reverse direction)
-    jz  [rb + count], move_memory_reverse_done
+    jz  [rb + count], .done
     add [rb + count], -1, [rb + count]
 
     # Copy one byte
@@ -118,9 +118,9 @@ move_memory_reverse_loop:
     add [rb + source], [rb + count], [ip + 3]
     add 0, 0, [0]
 
-    jz  0, move_memory_reverse_loop
+    jz  0, .loop
 
-move_memory_reverse_done:
+.done:
     arb 1
     ret 3
 .ENDFRAME

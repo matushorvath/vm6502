@@ -57,9 +57,9 @@ print_trace:
 
     add 1, 0, [rb + idx]
 
-print_trace_data_loop:
+.loop:
     eq  [rb + idx], [rb + length], [rb + tmp]
-    jnz [rb + tmp], print_trace_data_done
+    jnz [rb + tmp], .done
 
     out ' '
 
@@ -74,9 +74,9 @@ print_trace_data_loop:
     call print_num_radix
 
     add [rb + idx], 1, [rb + idx]
-    jz  0, print_trace_data_loop
+    jz  0, .loop
 
-print_trace_data_done:
+.done:
     out 10
 
     arb 5

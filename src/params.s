@@ -241,12 +241,12 @@ relative:
     call incpc
 
     lt  [rb + addr], 0x80, [rb + tmp]
-    jnz [rb + tmp], relative_offset_ready
+    jnz [rb + tmp], .offset_ready
 
     # Negative offset for 0x80-0xff
     add [rb + addr], -0x100, [rb + addr]
 
-relative_offset_ready:
+.offset_ready:
     add [reg_pc], [rb + addr], [rb - 1]             # [reg_pc] + [addr] -> [param0]
 
     add 0x10000, 0, [rb - 2]

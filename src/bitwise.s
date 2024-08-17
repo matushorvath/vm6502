@@ -37,7 +37,7 @@ execute_and:
     add 0, 0, [rb + res]
     add 8, 0, [rb + bit]
 
-execute_and_loop:
+.loop:
     add [rb + bit], -1, [rb + bit]
 
     mul [rb + res], 2, [rb + res]                           # res << 1
@@ -49,7 +49,7 @@ execute_and_loop:
     eq  [rb + tmp], 2, [rb + tmp]                           # tmp is 2 means both bits are 1
     add [rb + res], [rb + tmp], [rb + res]                  # res += bit n
 
-    jnz [rb + bit], execute_and_loop
+    jnz [rb + bit], .loop
 
     # Save the value
     add [rb + res], 0, [reg_a]
@@ -83,7 +83,7 @@ execute_eor:
     add 0, 0, [rb + res]
     add 8, 0, [rb + bit]
 
-execute_eor_loop:
+.loop:
     add [rb + bit], -1, [rb + bit]
 
     mul [rb + res], 2, [rb + res]                           # res << 1
@@ -94,7 +94,7 @@ execute_eor_loop:
     eq  [rb + tmp], 0, [rb + tmp]                           # tmp = ~tmp
     add [rb + res], [rb + tmp], [rb + res]                  # res += bit n
 
-    jnz [rb + bit], execute_eor_loop
+    jnz [rb + bit], .loop
 
     # Save the value
     add [rb + res], 0, [reg_a]
@@ -128,7 +128,7 @@ execute_ora:
     add 0, 0, [rb + res]
     add 8, 0, [rb + bit]
 
-execute_ora_loop:
+.loop:
     add [rb + bit], -1, [rb + bit]
 
     mul [rb + res], 2, [rb + res]                           # res << 1
@@ -140,7 +140,7 @@ execute_ora_loop:
     lt  0, [rb + tmp], [rb + tmp]                           # tmp is 0 means both bits are 0
     add [rb + res], [rb + tmp], [rb + res]                  # res += bit n
 
-    jnz [rb + bit], execute_ora_loop
+    jnz [rb + bit], .loop
 
     # Save the value
     add [rb + res], 0, [reg_a]
@@ -174,7 +174,7 @@ execute_bit:
     add 0, 0, [flag_zero]
     add 8, 0, [rb + bit]
 
-execute_bit_loop:
+.loop:
     add [rb + bit], -1, [rb + bit]
 
     add [rb + a_bits], [rb + bit], [ip + 5]
@@ -182,13 +182,13 @@ execute_bit_loop:
     add [0], [0], [rb + tmp]                                # bit n of a + bit n of b -> tmp
 
     eq  [rb + tmp], 2, [rb + tmp]                           # tmp is 2 means both bits are 1
-    jnz [rb + tmp], execute_bit_not_zero                    # at least one non-zero bit, skip setting flag_zero to 1
+    jnz [rb + tmp], .not_zero                    # at least one non-zero bit, skip setting flag_zero to 1
 
-    jnz [rb + bit], execute_bit_loop
+    jnz [rb + bit], .loop
 
     add 1, 0, [flag_zero]                                   # all bits of reg_a & [addr] are zero
 
-execute_bit_not_zero:
+.not_zero:
     # Set flag_negative to bit 7
     add [rb + b_bits], 7, [ip + 1]
     add [0], 0, [flag_negative]

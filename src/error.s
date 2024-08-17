@@ -10,7 +10,7 @@
 ##########
 report_error:
 .FRAME message;
-    add report_error_msg_start, 0, [rb - 1]
+    add .msg_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -18,7 +18,7 @@ report_error:
     arb -1
     call print_str
 
-    add report_error_msg_pc, 0, [rb - 1]
+    add .msg_pc, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -28,7 +28,7 @@ report_error:
     arb -3
     call print_num_radix
 
-    add report_error_msg_end, 0, [rb - 1]
+    add .msg_end, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -36,11 +36,11 @@ report_error:
 
     hlt
 
-report_error_msg_start:
+.msg_start:
     db  "vm6502 error: ", 0
-report_error_msg_pc:
+.msg_pc:
     db  " (pc: ", 0
-report_error_msg_end:
+.msg_end:
     db  ")", 0
 .ENDFRAME
 
