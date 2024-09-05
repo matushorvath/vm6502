@@ -6,16 +6,18 @@ ICDIR ?= $(abspath ../xzintbit)
 MSBASICDIR ?= $(abspath ../msbasic)
 FUNCTESTDIR ?= $(abspath ../6502_65C02_functional_tests)
 
+include $(ICDIR)/intcode.mk
+
 ifeq ($(shell test -d $(ICDIR) || echo error),error)
-	$(error ICDIR variable is invalid; point it where https://github.com/matushorvath/xzintbit is built)
+$(error ICDIR variable is invalid; point it where https://github.com/matushorvath/xzintbit is built)
 endif
 
 ifeq ($(shell test -d $(MSBASICDIR) || echo error),error)
-	$(error MSBASICDIR variable is invalid; point it where https://github.com/matushorvath/msbasic is built)
+$(error MSBASICDIR variable is invalid; point it where https://github.com/matushorvath/msbasic is built)
 endif
 
 ifeq ($(shell test -d $(FUNCTESTDIR) || echo error),error)
-	$(error FUNCTESTDIR variable is invalid; point it where https://github.com/Klaus2m5/6502_65C02_functional_tests is cloned)
+$(error FUNCTESTDIR variable is invalid; point it where https://github.com/Klaus2m5/6502_65C02_functional_tests is cloned)
 endif
 
 ICVM ?= $(abspath $(ICDIR)/vms)/$(ICVM_TYPE)/ic
@@ -28,23 +30,6 @@ LIBXIB ?= $(abspath $(ICDIR)/bin/libxib.a)
 SRCDIR = src
 BINDIR ?= bin
 OBJDIR ?= obj
-
-define run-as
-	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; false )
-endef
-
-define run-ar
-	cat $^ | sed 's/^.C$$/.L/g' > $@ || ( cat $@ ; false )
-endef
-
-define run-ld
-	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
-	echo .$$ | cat $^ - | $(ICVM) $(ICLDMAP) > $@.map.yaml || ( cat $@.map.yaml ; false )
-endef
-
-define run-bin2obj
-	wc -c $< | sed 's/$$/\/binary/' | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
-endef
 
 # Build
 .PHONY: build
@@ -75,10 +60,10 @@ BASE_OBJS = vm6502.o arithmetic.o bits.o bitwise.o branch.o error.o exec.o flags
 VM6502_OBJS = $(BASE_OBJS) $(LIBXIB) binary.o
 
 $(BINDIR)/vm6502.input: $(VM6502_OBJS:%.o=$(OBJDIR)/%.o)
-	$(run-ld)
+	$(run-intcode-ld)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.s
-	$(run-as)
+	$(run-intcode-as)
 
 # Intcode does not have a convenient way to access individual bits of a byte.
 # For speed and convenience we will sacrifice 256 * 8 = 2048 bytes and memoize the operation.
@@ -86,7 +71,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.s
 
 .PRECIOUS: $(OBJDIR)/%.o
 $(OBJDIR)/%.o: $(OBJDIR)/%.s
-	$(run-as)
+	$(run-intcode-as)
 
 .PRECIOUS: $(OBJDIR)/%.s
 $(OBJDIR)/%.s: $(OBJDIR)/gen_%.input
@@ -94,25 +79,27 @@ $(OBJDIR)/%.s: $(OBJDIR)/gen_%.input
 
 .PRECIOUS: $(OBJDIR)/gen_%.input
 $(OBJDIR)/gen_%.input: $(OBJDIR)/gen_%.o $(LIBXIB)
-	$(run-ld)
+	$(run-intcode-ld)
 
 # Microsoft Basic
 MSBASIC_OBJS = $(BASE_OBJS) $(LIBXIB) msbasic_header.o msbasic_binary.o
 
 $(BINDIR)/msbasic.input: $(MSBASIC_OBJS:%.o=$(OBJDIR)/%.o)
-	$(run-ld)
+	$(run-intcode-ld)
 
 $(OBJDIR)/msbasic_binary.o: $(MSBASICDIR)/tmp/vm6502.bin
-	$(run-bin2obj)
+	$(eval BIN2OBJ_NAME = binary)
+	$(run-intcode-bin2obj)
 
 # 6502 functional tests
 FUNC_TEST_OBJS = $(BASE_OBJS) func_test_callback.o $(LIBXIB) func_test_header.o func_test_binary.o
 
 $(BINDIR)/func_test.input: $(FUNC_TEST_OBJS:%.o=$(OBJDIR)/%.o)
-	$(run-ld)
+	$(run-intcode-ld)
 
 $(OBJDIR)/func_test_binary.o: $(FUNCTESTDIR)/bin_files/6502_functional_test.bin
-	$(run-bin2obj)
+	$(eval BIN2OBJ_NAME = binary)
+	$(run-intcode-bin2obj)
 
 # Clean
 .PHONY: clean
