@@ -1,4 +1,4 @@
-<div align="right"><img src="https://github.com/matushorvath/vm6502/actions/workflows/build.yml/badge.svg"></div>
+[![Build and Test](https://github.com/matushorvath/vm6502/actions/workflows/build.yml/badge.svg)](https://github.com/matushorvath/vm6502/actions/workflows/build.yml)
 
 # Microsoft Basic on an Intcode Runtime
 
